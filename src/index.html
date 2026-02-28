@@ -1,236 +1,308 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
+    <title>ElectroScript • Ofir Dror (2026)</title>
     <style>
-      body {
-        margin: 0;
-        padding: 20px;
-        font-family: Segoe UI, Arial, sans-serif;
-        background: linear-gradient(145deg, #0f172a 0%, #1e293b 45%, #111827 100%);
-        color: #e5e7eb;
-      }
-
-      h2 {
-        margin: 0 0 14px 0;
-        color: #f8fafc;
-      }
-
-      h3 {
-        margin: 18px 0 10px 0;
-        color: #cbd5e1;
-      }
-
-      #scripts {
-        display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        gap: 8px;
-        width: 100%;
-        max-width: 960px;
-      }
-
-      .script-btn {
-        width: 100%;
-        min-height: 34px;
-        text-transform: lowercase;
-      }
-
-      @media (max-width: 900px) {
-        #scripts {
-          grid-template-columns: repeat(3, 1fr);
+        html,
+        body {
+            overflow: hidden;
         }
-      }
 
-      button {
-        border: 1px solid #334155;
-        background: linear-gradient(180deg, #334155 0%, #1f2937 100%);
-        color: #f8fafc;
-        border-radius: 8px;
-        padding: 6px 12px;
-        cursor: pointer;
-        transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
-      }
+        body {
+            margin: 0;
+            padding: 20px 20px 0 20px;
+            font-family: Segoe UI, Arial, sans-serif;
+            background: linear-gradient(145deg, #0f172a 0%, #1e293b 45%, #111827 100%);
+            color: #e5e7eb;
+        }
 
-      button:hover:not(:disabled) {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 14px rgba(15, 23, 42, 0.35);
-        background: linear-gradient(180deg, #475569 0%, #334155 100%);
-      }
+        h2 {
+            margin: 0 0 14px 0;
+            color: #f8fafc;
+        }
 
-      .script-btn:hover:not(:disabled) {
-        background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
-        border-color: #3b82f6;
-      }
+        h3 {
+            margin: 18px 0 10px 0;
+            color: #cbd5e1;
+        }
 
-      #sendInput:hover:not(:disabled),
-      #clearConsole:hover:not(:disabled) {
-        background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
-        border-color: #22c55e;
-      }
+        #scripts {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            max-width: 960px;
+        }
 
-      button:active:not(:disabled) {
-        transform: translateY(0);
-      }
+        .script-row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            width: 100%;
+        }
 
-      button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
+        .script-btn {
+            width: 100%;
+            min-height: 34px;
+        }
 
-      #sendInput {
-        margin-left: 6px;
-      }
+        .script-btn.group-env {
+            background: linear-gradient(180deg, #0ea5e9 0%, #0369a1 100%);
+            border-color: #38bdf8;
+        }
 
-      #stopScript {
-        border-radius: 6px;
-        padding: 2px 8px;
-        border-color: #ef4444;
-        background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
-      }
+        .script-btn.group-rec {
+            background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%);
+            border-color: #a78bfa;
+        }
 
-      #scriptInput {
-        min-width: 240px;
-        border: 1px solid #334155;
-        background: #0b1220;
-        color: #e5e7eb;
-        border-radius: 8px;
-        padding: 6px 10px;
-      }
+        .script-btn.group-wfo {
+            background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
+            border-color: #fbbf24;
+        }
 
-      #scriptInput::placeholder {
-        color: #94a3b8;
-      }
+        @media (max-width: 900px) {
+            .script-row {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
 
+        button {
+            border: 1px solid #334155;
+            background: linear-gradient(180deg, #334155 0%, #1f2937 100%);
+            color: #f8fafc;
+            border-radius: 8px;
+            padding: 6px 12px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.35);
+            background: linear-gradient(180deg, #475569 0%, #334155 100%);
+        }
+
+        .script-btn.group-env:hover:not(:disabled) {
+            background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+            border-color: #3b82f6;
+        }
+
+        .script-btn.group-rec:hover:not(:disabled) {
+            background: linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%);
+            border-color: #8b5cf6;
+        }
+
+        .script-btn.group-wfo:hover:not(:disabled) {
+            background: linear-gradient(180deg, #f97316 0%, #c2410c 100%);
+            border-color: #fb923c;
+        }
+
+        #sendInput:hover:not(:disabled),
+        #clearConsole:hover:not(:disabled) {
+            background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
+            border-color: #22c55e;
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #sendInput {
+            margin-left: 6px;
+        }
+
+        #stopScript {
+            border-radius: 6px;
+            padding: 2px 8px;
+            border-color: #ef4444;
+            background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+        }
+
+        #scriptInput {
+            min-width: 240px;
+            border: 1px solid #334155;
+            background: #0b1220;
+            color: #e5e7eb;
+            border-radius: 8px;
+            padding: 6px 10px;
+        }
+
+        #scriptInput::placeholder {
+            color: #94a3b8;
+        }
     </style>
-  </head>
-  <body>
-    <h2>ElectroScript</h2>
+</head>
+
+<body>
+    <h2>ElectroScript • Ofir Dror (2026)</h2>
     <div id="scripts"></div>
     <h3>Output</h3>
     <div style="position: relative; width: 100%;">
-      <button id="stopScript" title="Stop (Ctrl+C)" style="position: absolute; top: 4px; right: 4px; z-index: 1;" disabled>X</button>
-      <pre id="output" style="height: 160px; overflow: auto; border: 1px solid #334155; padding: 8px; background: #000; color: #fff; font-family: Consolas, 'Courier New', monospace; width: 100%; box-sizing: border-box; border-radius: 10px;"></pre>
+        <button id="stopScript" title="Stop (Ctrl+C)" style="position: absolute; top: 4px; right: 4px; z-index: 1;"
+            disabled>X</button>
+        <pre id="output"
+            style="height: 160px; overflow: auto; border: 1px solid #334155; padding: 8px; background: #000; color: #fff; font-family: Consolas, 'Courier New', monospace; width: 100%; box-sizing: border-box; border-radius: 10px;"></pre>
     </div>
-    <div style="margin-top: 8px;">
-      <input id="scriptInput" type="text" placeholder="Type input for running script" />
-      <button id="sendInput" disabled>Send Input</button>
-      <button id="clearConsole">Clear Console</button>
+    <div style="margin-top: 4px;">
+        <input id="scriptInput" type="text" placeholder="Type MFA please..." />
+        <button id="sendInput" disabled>Send Input</button>
+        <button id="clearConsole">Clear Console</button>
     </div>
 
     <script>
-      let isScriptRunning = false;
+        let isScriptRunning = false;
 
-      function appendOutput(text) {
-        const output = document.getElementById('output');
-        output.textContent += text;
-        if (!text.endsWith('\n')) {
-          output.textContent += '\n';
-        }
-        output.scrollTop = output.scrollHeight;
-      }
-
-      window.api.onScriptOutput((chunk) => {
-        appendOutput(chunk);
-      });
-
-      window.api.onScriptState((state) => {
-        isScriptRunning = !!state.running;
-        document.getElementById('sendInput').disabled = !isScriptRunning;
-        document.getElementById('stopScript').disabled = !isScriptRunning;
-        if (!isScriptRunning) {
-          document.getElementById('scriptInput').value = '';
-        }
-      });
-
-      function sendInputToScript() {
-        if (!isScriptRunning) {
-          appendOutput('No running script.');
-          return;
-        }
-
-        const scriptInput = document.getElementById('scriptInput');
-        window.api.sendScriptInput(scriptInput.value);
-        scriptInput.value = '';
-      }
-
-      document.getElementById('sendInput').onclick = sendInputToScript;
-      document.getElementById('clearConsole').onclick = () => {
-        document.getElementById('output').textContent = '';
-      };
-      document.getElementById('stopScript').onclick = () => {
-        if (!isScriptRunning) {
-          appendOutput('No running script.');
-          return;
-        }
-
-        window.api.stopScript();
-      };
-      document.getElementById('scriptInput').addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
-          sendInputToScript();
-        }
-      });
-
-      async function loadScripts() {
-        const scriptsContainer = document.getElementById('scripts');
-        const availableScripts = await window.api.listScripts();
-        const sharedScriptName = 'aws-role-creds-base.ps1';
-        const accountTable = [
-          { label: 'dev-rec', target_profile_name: 'rec-dev', target_account_num: '730335479582', default_region: 'us-west-2' },
-          { label: 'rec-au1', target_profile_name: 'REC-AU', target_account_num: '975050195246', default_region: 'ap-southeast-2' },
-          { label: 'rec-na1', target_profile_name: 'REC-NA1', target_account_num: '654654430801', default_region: 'us-west-2' },
-          { label: 'rec-perf', target_profile_name: 'rec-perf', target_account_num: '339712875220', default_region: 'us-west-2' },
-          { label: 'test-rec', target_profile_name: 'test', target_account_num: '211125581625', default_region: 'us-west-2' },
-          {
-            label: 'wfo-prod',
-            target_profile_name: 'prod-oregon',
-            target_account_num: '918987959928',
-            default_region: 'us-west-2',
-            target_profile_name_codeartifact: 'nice-devops',
-            role_name_codeartifact: 'GroupAccess-Developers-Recording',
-          },
-        ];
-
-        accountTable.forEach((account) => {
-          const { label, ...scriptArgs } = account;
-          const button = document.createElement('button');
-          button.className = 'script-btn';
-          button.textContent = label;
-
-          if (!availableScripts.includes(sharedScriptName)) {
-            button.disabled = true;
-            button.title = `Missing script: ${sharedScriptName}`;
-          }
-
-          button.onclick = async () => {
-            if (isScriptRunning) {
-              appendOutput('A script is already running.');
-              return;
+        function appendOutput(text) {
+            const output = document.getElementById('output');
+            output.textContent += text;
+            if (!text.endsWith('\n')) {
+                output.textContent += '\n';
             }
+            output.scrollTop = output.scrollHeight;
+        }
 
-            if (!availableScripts.includes(sharedScriptName)) {
-              appendOutput(`Error: Script not found - ${sharedScriptName}`);
-              return;
-            }
-
-            appendOutput(`Running: ${label} (${sharedScriptName})`);
-            appendOutput('If prompted for input, type it below and press Send Input.');
-
-            try {
-              const result = await window.api.runScript({ scriptName: sharedScriptName, scriptArgs });
-              if (result && result.stopped) {
-                appendOutput('Stopped by user');
-              } else {
-                appendOutput(`Finished: ${label}`);
-              }
-            } catch (error) {
-              appendOutput(`Error: ${error.message || error}`);
-            }
-          };
-          scriptsContainer.appendChild(button);
+        window.api.onScriptOutput((chunk) => {
+            appendOutput(chunk);
         });
-      }
 
-      loadScripts();
+        window.api.onScriptState((state) => {
+            isScriptRunning = !!state.running;
+            document.getElementById('sendInput').disabled = !isScriptRunning;
+            document.getElementById('stopScript').disabled = !isScriptRunning;
+            if (!isScriptRunning) {
+                document.getElementById('scriptInput').value = '';
+            }
+        });
+
+        function sendInputToScript() {
+            if (!isScriptRunning) {
+                appendOutput('No running script.');
+                return;
+            }
+
+            const scriptInput = document.getElementById('scriptInput');
+            window.api.sendScriptInput(scriptInput.value);
+            scriptInput.value = '';
+        }
+
+        document.getElementById('sendInput').onclick = sendInputToScript;
+        document.getElementById('clearConsole').onclick = () => {
+            document.getElementById('output').textContent = '';
+        };
+        document.getElementById('stopScript').onclick = () => {
+            if (!isScriptRunning) {
+                appendOutput('No running script.');
+                return;
+            }
+
+            window.api.stopScript();
+        };
+        document.getElementById('scriptInput').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                sendInputToScript();
+            }
+        });
+
+        async function loadScripts() {
+            const scriptsContainer = document.getElementById('scripts');
+            const availableScripts = await window.api.listScripts();
+
+            const envRow = document.createElement('div');
+            envRow.className = 'script-row';
+            const recRow = document.createElement('div');
+            recRow.className = 'script-row';
+            const wfoRow = document.createElement('div');
+            wfoRow.className = 'script-row';
+
+            scriptsContainer.appendChild(envRow);
+            scriptsContainer.appendChild(recRow);
+            scriptsContainer.appendChild(wfoRow);
+
+            const sharedScriptName = 'aws-role-creds-base.ps1';
+            const accountTable = [
+                { label: 'DEV-REC', target_profile_name: 'rec-dev', target_account_num: '730335479582', default_region: 'us-west-2' },
+                { label: 'TEST-REC', target_profile_name: 'test', target_account_num: '211125581625', default_region: 'us-west-2' },
+                { label: 'REC-PERF', target_profile_name: 'rec-perf', target_account_num: '339712875220', default_region: 'us-west-2' },
+                { label: 'REC-STAGING', target_profile_name: 'rec-staging', target_account_num: '891377049518', default_region: 'us-west-2' },
+                { label: 'REC-AU1', target_profile_name: 'REC-AU', target_account_num: '975050195246', default_region: 'ap-southeast-2' },
+                { label: 'REC-NA1', target_profile_name: 'REC-NA1', target_account_num: '654654430801', default_region: 'us-west-2' },
+                { label: 'REC-NA2', target_profile_name: 'REC-NA2', target_account_num: '975049966138', default_region: 'us-east-1' },
+                { label: 'REC-UK', target_profile_name: 'REC-UK', target_account_num: '891377174057', default_region: 'eu-west-2' },
+                { label: 'REC-AE', target_profile_name: 'REC-AE', target_account_num: '851725652281', default_region: 'me-central-1' },
+                { label: 'REC-AU', target_profile_name: 'REC-AU', target_account_num: '975050195246 ', default_region: 'ap-southeast-2' },
+                { label: 'WFO-NA1', target_profile_name: 'prod-oregon', target_account_num: '918987959928', default_region: 'us-west-2' },
+                { label: 'WFO-AU1', target_profile_name: 'wfo-au1', target_account_num: '918987959928', default_region: 'ap-southeast-2' },
+                { label: "WFO-DE", target_profile_name: 'wfo-de', target_account_num: '918987959928', default_region: 'eu-central-1' },
+                { label: "WFO-UK1", target_profile_name: 'wfo-uk1', target_account_num: '918987959928', default_region: 'eu-west-2' },
+                { label: "WFO-JP1", target_profile_name: 'wfo-jp1', target_account_num: '918987959928', default_region: 'ap-northeast-1' },
+                { label: "WFO-AE1", target_profile_name: 'wfo-ae1', target_account_num: '918987959928', default_region: 'me-south-1' },
+                { label: "WFO-KR1", target_profile_name: 'wfo-kr1', target_account_num: '918987959928', default_region: 'ap-southeast-1' },
+            ];
+
+            accountTable.forEach((account) => {
+                const { label, ...scriptArgs } = account;
+                const button = document.createElement('button');
+                button.className = 'script-btn';
+                let targetRow = recRow;
+
+                if (label.startsWith('WFO-')) {
+                    button.classList.add('group-wfo');
+                    targetRow = wfoRow;
+                } else if (['DEV-REC', 'TEST-REC', 'REC-PERF', 'REC-STAGING'].includes(label)) {
+                    button.classList.add('group-env');
+                    targetRow = envRow;
+                } else if (label.startsWith('REC-')) {
+                    button.classList.add('group-rec');
+                    targetRow = recRow;
+                }
+
+                button.textContent = label;
+
+                if (!availableScripts.includes(sharedScriptName)) {
+                    button.disabled = true;
+                    button.title = `Missing script: ${sharedScriptName}`;
+                }
+
+                button.onclick = async () => {
+                    if (isScriptRunning) {
+                        appendOutput('A script is already running.');
+                        return;
+                    }
+
+                    if (!availableScripts.includes(sharedScriptName)) {
+                        appendOutput(`Error: Script not found - ${sharedScriptName}`);
+                        return;
+                    }
+
+                    appendOutput(`Running: ${label} (${sharedScriptName})`);
+                    appendOutput('If prompted for input, type it below and press Send Input.');
+
+                    try {
+                        const result = await window.api.runScript({ scriptName: sharedScriptName, scriptArgs });
+                        if (result && result.stopped) {
+                            appendOutput('Stopped by user');
+                        } else {
+                            appendOutput(`Finished: ${label}`);
+                        }
+                    } catch (error) {
+                        appendOutput(`Error: ${error.message || error}`);
+                    }
+                };
+                targetRow.appendChild(button);
+            });
+
+        }
+
+        loadScripts();
     </script>
-  </body>
+</body>
+
 </html>

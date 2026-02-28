@@ -78,11 +78,11 @@ function emitPromptLine(webContents, promptText) {
 function createWindow() {
   const win = new BrowserWindow({
     width: 980,
-    height: 500,
+    height: 600,
     minWidth: 980,
-    minHeight: 500,
+    minHeight: 600,
     maxWidth: 980,
-    maxHeight: 500,
+    maxHeight: 600,
     resizable: false,
     maximizable: false,
     webPreferences: {

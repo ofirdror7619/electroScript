@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('api', {
   runScript: (scriptName) => ipcRenderer.invoke('run-script', scriptName),
   sendScriptInput: (input) => ipcRenderer.send('send-script-input', input),
   stopScript: () => ipcRenderer.send('stop-script'),
+  setWindowContentHeight: (height) => ipcRenderer.send('set-window-content-height', height),
   onScriptOutput: (callback) => {
     ipcRenderer.removeAllListeners('script-output');
     ipcRenderer.on('script-output', (_, chunk) => callback(chunk));
