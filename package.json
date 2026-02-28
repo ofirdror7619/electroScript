@@ -5,6 +5,7 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
+    "generate:icon": "node scripts/generate-icon.js",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "dist:win": "electron-builder --win",
@@ -32,6 +33,7 @@
       "package.json"
     ],
     "win": {
+      "icon": "build/icon.ico",
       "target": [
         {
           "target": "nsis",
@@ -42,12 +44,16 @@
       ]
     },
     "nsis": {
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
     }
   },
   "devDependencies": {
     "electron": "^40.6.1",
-    "electron-builder": "^26.0.12"
+    "electron-builder": "^26.0.12",
+    "pngjs": "^7.0.0",
+    "to-ico": "^1.1.5"
   }
 }

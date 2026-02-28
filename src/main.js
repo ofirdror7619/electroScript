@@ -4,6 +4,7 @@ const fs = require('fs');
 const { spawn } = require('child_process');
 
 const scriptsDir = path.join(__dirname, 'scripts');
+const appIconPath = path.join(__dirname, '..', 'build', 'icon.png');
 const runningProcesses = new Map();
 
 function buildPowerShellArgs(scriptArgs) {
@@ -84,6 +85,7 @@ function createWindow() {
     maxWidth: 980,
     maxHeight: 600,
     resizable: false,
+    icon: fs.existsSync(appIconPath) ? appIconPath : undefined,
     maximizable: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -91,6 +93,10 @@ function createWindow() {
   });
 
   win.loadFile(path.join(__dirname, 'index.html'));
+}
+
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.ofir.electroscript');
 }
 
 app.whenReady().then(createWindow);
