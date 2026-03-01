@@ -220,6 +220,48 @@
             border-color: #ef4444;
             box-shadow: 0 0 7px rgba(239, 68, 68, 0.8);
         }
+
+        #mfaSettings {
+            margin-top: 8px;
+            color: #cbd5e1;
+            max-width: 960px;
+        }
+
+        #mfaSettings summary {
+            cursor: pointer;
+            font-size: 12px;
+            user-select: none;
+        }
+
+        #mfaSettingsPanel {
+            margin-top: 6px;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #mfaCommandInput {
+            min-width: 360px;
+            border: 1px solid #334155;
+            background: #0b1220;
+            color: #e5e7eb;
+            border-radius: 8px;
+            padding: 6px 10px;
+        }
+
+        #mfaSecretInput {
+            min-width: 260px;
+            border: 1px solid #334155;
+            background: #0b1220;
+            color: #e5e7eb;
+            border-radius: 8px;
+            padding: 6px 10px;
+        }
     </style>
 </head>
 
@@ -242,10 +284,51 @@
         <div id="statusLight" aria-label="Connection status"></div>
         <span id="statusText">Idle</span>
     </div>
+    <details id="mfaSettings">
+        <summary>Auto MFA Settings</summary>
+        <div id="mfaSettingsPanel">
+            <input id="mfaSecretInput" type="password"
+                placeholder="MFA secret (Base32, optional)" />
+            <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px;">
+                <input id="mfaAdvancedToggle" type="checkbox" />
+                Advanced mode
+            </label>
+            <input id="mfaCommandInput" class="hidden" type="text"
+                placeholder="Command that prints MFA code (e.g., op read 'op://Vault/AWS MFA/one-time password')" />
+            <button id="saveMfaSettings">Save</button>
+            <button id="clearMfaSettings">Clear</button>
+        </div>
+    </details>
 
     <script>
         let isScriptRunning = false;
         let activeScriptButton = null;
+        const MFA_COMMAND_STORAGE_KEY = 'electroscript.mfaCommand';
+        const MFA_SECRET_STORAGE_KEY = 'electroscript.mfaSecret';
+        const MFA_ADVANCED_STORAGE_KEY = 'electroscript.mfaAdvanced';
+
+        function loadMfaSettings() {
+            const secretInput = document.getElementById('mfaSecretInput');
+            const commandInput = document.getElementById('mfaCommandInput');
+            const advancedToggle = document.getElementById('mfaAdvancedToggle');
+
+            commandInput.value = localStorage.getItem(MFA_COMMAND_STORAGE_KEY) || '';
+            secretInput.value = localStorage.getItem(MFA_SECRET_STORAGE_KEY) || '';
+
+            const advancedEnabled = localStorage.getItem(MFA_ADVANCED_STORAGE_KEY) === 'true';
+            advancedToggle.checked = advancedEnabled;
+            commandInput.classList.toggle('hidden', !advancedEnabled);
+        }
+
+        function getAutoMfaOverride() {
+            const mfaSecret = (localStorage.getItem(MFA_SECRET_STORAGE_KEY) || '').trim();
+            const mfaCommand = (localStorage.getItem(MFA_COMMAND_STORAGE_KEY) || '').trim();
+            if (!mfaSecret && !mfaCommand) {
+                return undefined;
+            }
+
+            return { mfaSecret, mfaCommand };
+        }
 
         function setStatus(mode) {
             const statusLight = document.getElementById('statusLight');
@@ -308,6 +391,7 @@
         function resetAllButtonIndicators() {
             document.querySelectorAll('.btn-light').forEach((light) => {
                 light.classList.remove('connecting', 'connected');
+                light.classList.remove('error');
             });
         }
 
@@ -346,6 +430,45 @@
         }
 
         document.getElementById('sendInput').onclick = sendInputToScript;
+        document.getElementById('saveMfaSettings').onclick = () => {
+            const mfaSecretInput = document.getElementById('mfaSecretInput');
+            const mfaCommandInput = document.getElementById('mfaCommandInput');
+            const advancedToggle = document.getElementById('mfaAdvancedToggle');
+            const secretValue = mfaSecretInput.value.trim();
+            const commandValue = mfaCommandInput.value.trim();
+
+            localStorage.setItem(MFA_ADVANCED_STORAGE_KEY, String(advancedToggle.checked));
+
+            if (secretValue) {
+                localStorage.setItem(MFA_SECRET_STORAGE_KEY, secretValue);
+            } else {
+                localStorage.removeItem(MFA_SECRET_STORAGE_KEY);
+            }
+
+            if (commandValue) {
+                localStorage.setItem(MFA_COMMAND_STORAGE_KEY, commandValue);
+            } else {
+                localStorage.removeItem(MFA_COMMAND_STORAGE_KEY);
+            }
+
+            appendOutput('Auto MFA settings saved.');
+        };
+
+        document.getElementById('clearMfaSettings').onclick = () => {
+            localStorage.removeItem(MFA_SECRET_STORAGE_KEY);
+            localStorage.removeItem(MFA_COMMAND_STORAGE_KEY);
+            localStorage.removeItem(MFA_ADVANCED_STORAGE_KEY);
+            document.getElementById('mfaSecretInput').value = '';
+            document.getElementById('mfaCommandInput').value = '';
+            document.getElementById('mfaAdvancedToggle').checked = false;
+            document.getElementById('mfaCommandInput').classList.add('hidden');
+            appendOutput('Auto MFA settings cleared.');
+        };
+        document.getElementById('mfaAdvancedToggle').addEventListener('change', (event) => {
+            const enabled = !!event.target.checked;
+            document.getElementById('mfaCommandInput').classList.toggle('hidden', !enabled);
+            localStorage.setItem(MFA_ADVANCED_STORAGE_KEY, String(enabled));
+        });
         document.getElementById('clearConsole').onclick = () => {
             document.getElementById('output').textContent = '';
         };
@@ -455,7 +578,11 @@
                     appendOutput('If prompted for input, type it below and press Send Input.');
 
                     try {
-                        const result = await window.api.runScript({ scriptName: sharedScriptName, scriptArgs });
+                        const result = await window.api.runScript({
+                            scriptName: sharedScriptName,
+                            scriptArgs,
+                            autoMfa: getAutoMfaOverride(),
+                        });
                         if (result && result.stopped) {
                             appendOutput('Stopped by user');
                             setStatus('idle');
@@ -479,6 +606,7 @@
 
         }
 
+        loadMfaSettings();
         loadScripts();
     </script>
 </body>
