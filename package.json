@@ -32,6 +32,9 @@
       "src/**/*",
       "package.json"
     ],
+    "asarUnpack": [
+      "src/scripts/**/*"
+    ],
     "win": {
       "icon": "build/icon.ico",
       "target": [

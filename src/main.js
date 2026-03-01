@@ -3,9 +3,16 @@ const path = require('path');
 const fs = require('fs');
 const { spawn } = require('child_process');
 
-const scriptsDir = path.join(__dirname, 'scripts');
 const appIconPath = path.join(__dirname, '..', 'build', 'icon.png');
 const runningProcesses = new Map();
+
+function getScriptsDir() {
+  if (app.isPackaged) {
+    return path.join(process.resourcesPath, 'app.asar.unpacked', 'src', 'scripts');
+  }
+
+  return path.join(__dirname, 'scripts');
+}
 
 function buildPowerShellArgs(scriptArgs) {
   if (!scriptArgs || typeof scriptArgs !== 'object') {
@@ -102,6 +109,7 @@ if (process.platform === 'win32') {
 app.whenReady().then(createWindow);
 
 ipcMain.handle('get-scripts', async () => {
+  const scriptsDir = getScriptsDir();
   const files = await fs.promises.readdir(scriptsDir);
   return files.filter((fileName) => fileName.endsWith('.ps1') || fileName.endsWith('.js'));
 });
@@ -122,6 +130,7 @@ ipcMain.handle('run-script', async (event, runRequest) => {
     throw new Error('Invalid script name');
   }
 
+  const scriptsDir = getScriptsDir();
   const scriptPath = path.join(scriptsDir, scriptName);
   const exists = await fs.promises
     .access(scriptPath)

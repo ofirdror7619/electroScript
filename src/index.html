@@ -45,6 +45,43 @@
         .script-btn {
             width: 100%;
             min-height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .btn-light {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            background: #000;
+            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+            transition: background 120ms ease, box-shadow 120ms ease;
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .btn-label {
+            width: 100%;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .btn-light.connecting {
+            background: #facc15;
+            border-color: #facc15;
+            box-shadow: 0 0 7px rgba(250, 204, 21, 0.8);
+        }
+
+        .btn-light.connected {
+            background: #22c55e;
+            border-color: #22c55e;
+            box-shadow: 0 0 7px rgba(34, 197, 94, 0.8);
         }
 
         .script-btn.group-env {
@@ -138,15 +175,60 @@
         #scriptInput::placeholder {
             color: #94a3b8;
         }
+
+        #statusWrap {
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #cbd5e1;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        #statusLight {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid #475569;
+            background: #000;
+            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+            transition: background 120ms ease, box-shadow 120ms ease;
+        }
+
+        #statusLight.connecting {
+            background: #facc15;
+            box-shadow: 0 0 8px rgba(250, 204, 21, 0.8);
+            border-color: #facc15;
+        }
+
+        #statusLight.connected {
+            background: #22c55e;
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
+            border-color: #22c55e;
+        }
+
+        #statusLight.error {
+            background: #ef4444;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+            border-color: #ef4444;
+        }
+
+        .btn-light.error {
+            background: #ef4444;
+            border-color: #ef4444;
+            box-shadow: 0 0 7px rgba(239, 68, 68, 0.8);
+        }
     </style>
 </head>
 
 <body>
     <h2>ElectroScript • Ofir Dror (2026)</h2>
     <div id="scripts"></div>
-    <h3>Output</h3>
+    <h3>Output:</h3>
     <div style="position: relative; width: 100%;">
-        <button id="stopScript" title="Stop (Ctrl+C)" style="position: absolute; top: 4px; right: 4px; z-index: 1;"
+        <button id="stopScript" title="Stop (Ctrl+C)" style="position: absolute; top: 4px; right: 20px; z-index: 1;"
             disabled>X</button>
         <pre id="output"
             style="height: 160px; overflow: auto; border: 1px solid #334155; padding: 8px; background: #000; color: #fff; font-family: Consolas, 'Courier New', monospace; width: 100%; box-sizing: border-box; border-radius: 10px;"></pre>
@@ -156,9 +238,41 @@
         <button id="sendInput" disabled>Send Input</button>
         <button id="clearConsole">Clear Console</button>
     </div>
+    <div id="statusWrap">
+        <div id="statusLight" aria-label="Connection status"></div>
+        <span id="statusText">Idle</span>
+    </div>
 
     <script>
         let isScriptRunning = false;
+        let activeScriptButton = null;
+
+        function setStatus(mode) {
+            const statusLight = document.getElementById('statusLight');
+            const statusText = document.getElementById('statusText');
+
+            statusLight.classList.remove('connecting', 'connected', 'error');
+
+            if (mode === 'connecting') {
+                statusLight.classList.add('connecting');
+                statusText.textContent = 'Connecting';
+                return;
+            }
+
+            if (mode === 'connected') {
+                statusLight.classList.add('connected');
+                statusText.textContent = 'Connected';
+                return;
+            }
+
+            if (mode === 'error') {
+                statusLight.classList.add('error');
+                statusText.textContent = 'Error';
+                return;
+            }
+
+            statusText.textContent = 'Idle';
+        }
 
         function appendOutput(text) {
             const output = document.getElementById('output');
@@ -169,8 +283,46 @@
             output.scrollTop = output.scrollHeight;
         }
 
+        function setButtonIndicator(button, mode) {
+            if (!button) {
+                return;
+            }
+
+            const light = button.querySelector('.btn-light');
+            if (!light) {
+                return;
+            }
+
+            light.classList.remove('connecting', 'connected');
+            light.classList.remove('error');
+
+            if (mode === 'connecting') {
+                light.classList.add('connecting');
+            } else if (mode === 'connected') {
+                light.classList.add('connected');
+            } else if (mode === 'error') {
+                light.classList.add('error');
+            }
+        }
+
+        function resetAllButtonIndicators() {
+            document.querySelectorAll('.btn-light').forEach((light) => {
+                light.classList.remove('connecting', 'connected');
+            });
+        }
+
         window.api.onScriptOutput((chunk) => {
             appendOutput(chunk);
+
+            if (chunk.toLowerCase().includes('keep this window open to have your keys renewed every')) {
+                setStatus('connected');
+                setButtonIndicator(activeScriptButton, 'connected');
+            }
+
+            if (chunk.toLowerCase().includes('an error occurred (accessdenied) when calling')) {
+                setStatus('error');
+                setButtonIndicator(activeScriptButton, 'error');
+            }
         });
 
         window.api.onScriptState((state) => {
@@ -203,6 +355,9 @@
                 return;
             }
 
+            setStatus('idle');
+            setButtonIndicator(activeScriptButton, 'idle');
+            activeScriptButton = null;
             window.api.stopScript();
         };
         document.getElementById('scriptInput').addEventListener('keydown', (event) => {
@@ -264,7 +419,14 @@
                     targetRow = recRow;
                 }
 
-                button.textContent = label;
+                const light = document.createElement('span');
+                light.className = 'btn-light';
+                button.appendChild(light);
+
+                const labelNode = document.createElement('span');
+                labelNode.className = 'btn-label';
+                labelNode.textContent = label;
+                button.appendChild(labelNode);
 
                 if (!availableScripts.includes(sharedScriptName)) {
                     button.disabled = true;
@@ -277,8 +439,15 @@
                         return;
                     }
 
+                    resetAllButtonIndicators();
+                    activeScriptButton = button;
+                    setButtonIndicator(button, 'connecting');
+                    setStatus('connecting');
+
                     if (!availableScripts.includes(sharedScriptName)) {
                         appendOutput(`Error: Script not found - ${sharedScriptName}`);
+                        setButtonIndicator(button, 'idle');
+                        activeScriptButton = null;
                         return;
                     }
 
@@ -289,11 +458,20 @@
                         const result = await window.api.runScript({ scriptName: sharedScriptName, scriptArgs });
                         if (result && result.stopped) {
                             appendOutput('Stopped by user');
+                            setStatus('idle');
+                            setButtonIndicator(button, 'idle');
+                            activeScriptButton = null;
                         } else {
                             appendOutput(`Finished: ${label}`);
+                            setStatus('idle');
+                            setButtonIndicator(button, 'idle');
+                            activeScriptButton = null;
                         }
                     } catch (error) {
                         appendOutput(`Error: ${error.message || error}`);
+                        setStatus('idle');
+                        setButtonIndicator(button, 'idle');
+                        activeScriptButton = null;
                     }
                 };
                 targetRow.appendChild(button);
